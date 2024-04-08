@@ -6,19 +6,12 @@ import (
 
 	"github.com/RafaelPereiraSantos/injection-test/interfaces"
 	"github.com/RafaelPereiraSantos/injection-test/services"
+	"github.com/RafaelPereiraSantos/injection-test/workers"
 )
 
-type (
-	Worker struct {
-		service01 interfaces.ServiceInterface01
-		service02 interfaces.ServiceInterface02
-		service03 interfaces.ServiceInterface03
-	}
-
-	Injector struct {
-		availableParamebers map[string]any
-	}
-)
+type Injector struct {
+	availableParamebers map[string]any
+}
 
 func main() {
 	// usual way
@@ -26,8 +19,8 @@ func main() {
 	srv02 := services.NewServiceImplementation02()
 	srv03 := services.NewServiceImplementation03()
 
-	wrk := createWorker(srv01, srv02, srv03)
-	wrk.DoSomething()
+	regularWrk := createWorker01(srv01, srv02, srv03)
+	regularWrk.DoSomething()
 
 	// injecting parameters
 	inj := &Injector{
@@ -37,24 +30,36 @@ func main() {
 	inj.RegisterInterface("ServiceInterface02", services.NewServiceImplementation02())
 	inj.RegisterInterface("ServiceInterface03", services.NewServiceImplementation03())
 
-	wrk2 := inj.FillAndCall(createWorker).(*Worker)
-	wrk2.DoSomething()
+	injectedWorker01 := inj.FillAndCall(createWorker01).(*workers.Worker01)
+	injectedWorker01.DoSomething()
+
+	injectedWorker02 := inj.FillAndCall(createWorker02).(*workers.Worker02)
+	injectedWorker02.DoSomething()
+
+	injectedWorker03 := inj.FillAndCall(createWorker03).(*workers.Worker03)
+	injectedWorker03.DoSomething()
 }
 
-func createWorker(
+func createWorker01(
 	service01 interfaces.ServiceInterface01,
 	service02 interfaces.ServiceInterface02,
 	service03 interfaces.ServiceInterface03,
-) *Worker {
-	return &Worker{service01, service02, service03}
+) *workers.Worker01 {
+	return &workers.Worker01{service01, service02, service03}
 }
 
-func (w *Worker) DoSomething() {
-	w.service01.MethodA()
-	w.service02.MethodB()
-	w.service03.MethodC()
+func createWorker02(
+	service02 interfaces.ServiceInterface02,
+	service03 interfaces.ServiceInterface03,
+) *workers.Worker02 {
+	return &workers.Worker02{service02, service03}
+}
 
-	fmt.Println("Called")
+func createWorker03(
+	service01 interfaces.ServiceInterface01,
+	service02 interfaces.ServiceInterface02,
+) *workers.Worker03 {
+	return &workers.Worker03{service01, service02}
 }
 
 func (i *Injector) RegisterInterface(name string, value any) {
