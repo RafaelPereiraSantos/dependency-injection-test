@@ -3,7 +3,7 @@ package workers
 import (
 	"fmt"
 
-	"github.com/RafaelPereiraSantos/injection-test/interfaces"
+	"github.com/RafaelPereiraSantos/injection-test/example/interfaces"
 )
 
 type (
