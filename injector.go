@@ -26,18 +26,19 @@ func (inje *Injector) RegisterInterface(name string, value any) {
 
 // This method injects the registered interfaces into the function and calls it.
 // Params:
-// - fn: the function to be called. This function could receive any arange of parameters, however it must return
-// exactly two values, a product and an error, the product being what you are trying to "build" with the injection.
+// - buildFunction: the function to be called. This function could receive any arange of parameters, however it must
+// return exactly two values, a product and an error, the product being what you are trying to "build" with the
+// injection.
 // Returns: the product of the function that was given and a possible error.
-func (inje *Injector) FillAndCall(fn any) (any, error) {
-	amountOfParams := reflect.TypeOf(fn).NumIn() // checks what is the type of the function.
+func (inje *Injector) FillAndCall(buildFunction any) (any, error) {
+	amountOfParams := reflect.TypeOf(buildFunction).NumIn() // checks what is the type of the function.
 
 	parameters := []reflect.Value{}
 
 	// in this loop the function tries to identify which type of value is required in each position of the
 	// functino parameters and arranges them acordingly.
 	for i := 0; i < amountOfParams; i++ {
-		paramName := reflect.TypeOf(fn).In(i).Name()
+		paramName := reflect.TypeOf(buildFunction).In(i).Name()
 
 		if value, ok := inje.AvailableParamebers[paramName]; ok {
 			parameters = append(parameters, reflect.ValueOf(value))
@@ -46,7 +47,7 @@ func (inje *Injector) FillAndCall(fn any) (any, error) {
 		}
 	}
 
-	returnedValuesCout := len(reflect.ValueOf(fn).Call(parameters))
+	returnedValuesCout := len(reflect.ValueOf(buildFunction).Call(parameters))
 
 	// For now, the logic expects that the function returns exactly two values, a "product" and an error.
 	// The product being what the client expect to receive from the given function and the error an error that
@@ -56,8 +57,8 @@ func (inje *Injector) FillAndCall(fn any) (any, error) {
 		log.Fatalf("The function must return two values, the product and an error")
 	}
 
-	value := reflect.ValueOf(fn).Call(parameters)[valueIndex].Interface()
-	err := reflect.ValueOf(fn).Call(parameters)[errIndex].Interface()
+	value := reflect.ValueOf(buildFunction).Call(parameters)[valueIndex].Interface()
+	err := reflect.ValueOf(buildFunction).Call(parameters)[errIndex].Interface()
 
 	switch err := err.(type) {
 	case error:
