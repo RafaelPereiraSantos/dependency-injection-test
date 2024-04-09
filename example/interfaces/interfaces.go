@@ -1,5 +1,6 @@
 package interfaces
 
+// Here we have some random interfaces only for the sake of the example.
 type (
 	ServiceInterface01 interface {
 		MethodA() string

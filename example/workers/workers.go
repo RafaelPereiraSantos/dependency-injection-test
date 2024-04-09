@@ -6,6 +6,9 @@ import (
 	"github.com/RafaelPereiraSantos/injection-test/example/interfaces"
 )
 
+// Here we have a sort of "workers" but they could be http APIs, gRPC clients, or any other kind of service that are
+// a good candidate for a dependency injection approach. These workers were defined to have different dependencies
+// on purpose, so we can see how the injector can handle different scenarios.
 type (
 	Worker01 struct {
 		Service01 interfaces.ServiceInterface01
